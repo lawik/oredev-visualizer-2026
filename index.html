@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Threads and schedulers</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<aside id="panel">
+  <h1>Threads &amp; schedulers</h1>
+  <div class="transport">
+    <button id="pause" title="Play / pause (space)" aria-label="Play or pause">
+      <svg class="icon-pause" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><rect x="5" y="4" width="5" height="16" rx="1"/><rect x="14" y="4" width="5" height="16" rx="1"/></svg>
+      <svg class="icon-play" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M6 4l14 8-14 8z"/></svg>
+    </button>
+    <button id="stepBtn" title="Step 1 ms (.)" aria-label="Step 1 ms">
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 4l11 8-11 8z"/><rect x="17" y="4" width="3" height="16" rx="1"/></svg>
+    </button>
+    <button id="reset" title="Restart (r)" aria-label="Restart">
+      <svg class="icon-stroke" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v5h-5"/></svg>
+    </button>
+  </div>
+
+  <section>
+    <h2>Machine</h2>
+    <select id="modelPreset"></select>
+    <div class="two">
+      <label>Cores <input type="number" id="cores" min="1" max="32" value="1"></label>
+      <label>OS threads <input type="number" id="threads" min="1" max="5000" value="1"></label>
+    </div>
+    <div class="row">
+      <span>Kernel</span>
+      <span class="seg">
+        <label><input type="radio" name="os" id="osCoop" checked> cooperative</label>
+        <label><input type="radio" name="os" id="osPreempt"> preemptive</label>
+      </span>
+    </div>
+    <label class="line">Kernel time slice <span><input type="number" id="osQuantum" min="0.1" step="0.5" value="5"> ms</span></label>
+  </section>
+
+  <section>
+    <h2><label class="check"><input type="checkbox" id="usOn"> Userspace threads on top</label></h2>
+    <div id="usBox">
+      <div class="row">
+        <span>Runtime</span>
+        <span class="seg">
+          <label><input type="radio" name="us" id="usCoop" checked> cooperative</label>
+          <label><input type="radio" name="us" id="usPreempt"> preemptive</label>
+        </span>
+      </div>
+      <label class="line">Runtime time slice <span><input type="number" id="usQuantum" min="0.1" step="0.5" value="1"> ms</span></label>
+      <label class="line">Max userspace threads <span><input type="number" id="usLimit" min="0" placeholder="∞"></span></label>
+      <label class="check"><input type="checkbox" id="usPinned"> Pin each to one OS thread, no work stealing</label>
+    </div>
+  </section>
+
+  <section>
+    <h2>Workload</h2>
+    <select id="workloadPreset"></select>
+    <label class="line">Requests per second <input type="number" id="rate" min="0" step="50" value="300"></label>
+    <label class="line">CPU per request <span><input type="number" id="cpuMs" min="0.1" step="0.1" value="0.2"> ms</span></label>
+    <label class="line">CPU variance <span>up to <input type="number" id="cpuVar" min="0" step="0.5" value="0">× more</span></label>
+    <label class="line">IO per request <span><input type="number" id="ioMs" min="0" step="5" value="20"> ms</span></label>
+    <label class="line">IO variance <span>up to <input type="number" id="ioVar" min="0" step="0.5" value="0.5">× more</span></label>
+    <label class="line">Spikiness <span id="spikinessLabel" class="hint"></span></label>
+    <input type="range" id="spikiness" min="0" max="1" step="0.05" value="0">
+  </section>
+
+  <section>
+    <h2>Time</h2>
+    <input type="range" id="speed" min="0" max="100" value="35">
+    <div id="speedLabel" class="hint"></div>
+    <div class="hint">space pauses · . steps · r restarts</div>
+  </section>
+
+  <p id="explain"></p>
+</aside>
+
+<main>
+  <canvas id="stage"></canvas>
+  <div id="charts">
+    <div class="legend">
+      <span class="key"><i class="l-p99"></i>p99 <b id="val_p99">–</b></span>
+      <span class="key"><i class="l-p90"></i>p90 <b id="val_p90">–</b></span>
+      <span class="key"><i class="l-p50"></i>p50 <b id="val_p50">–</b></span>
+      <span id="scale" class="key"></span>
+    </div>
+    <canvas id="chart"></canvas>
+  </div>
+</main>
+
+<script src="vendor/rough.js"></script>
+<script src="sim.js"></script>
+<script src="render.js"></script>
+<script src="main.js"></script>
+</body>
+</html>
